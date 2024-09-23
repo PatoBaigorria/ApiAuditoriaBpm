@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "PGxke9+nqNCK5O7LxDuz+ZDMJPxEYpCqvBGBiXPmhWA=",
+  "Source": "ApiAuditoriaBpm",
+  "BasePath": "_content/ApiAuditoriaBpm",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
