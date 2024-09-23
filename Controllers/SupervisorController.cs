@@ -35,13 +35,13 @@ namespace apiAuditoriaBPM.Controllers
             try
             {
                 // Extrae el Legajo del claim
-                var legajoClaim = User.Claims.FirstOrDefault(c => c.Type == "Legajo");
+                /*var legajoClaim = User.Claims.FirstOrDefault(c => c.Name == "Legajo");
                 if (legajoClaim == null)
                 {
                     return Unauthorized("No se pudo encontrar el Legajo en el token.");
-                }
-
-                int legajo = int.Parse(legajoClaim.Value);
+                }*/
+                var legajo = int.Parse(User.FindFirstValue("Legajo"));
+                
 
                 // Busca al usuario en la base de datos
                 var supervisor = await contexto.Supervisor.SingleOrDefaultAsync(x => x.Legajo == legajo);
@@ -84,7 +84,7 @@ namespace apiAuditoriaBPM.Controllers
                     var credenciales = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                     var claims = new List<Claim>
                     {
-                        new Claim(ClaimTypes.Name, u.Legajo.ToString()),
+                        new Claim("Legajo", u.Legajo.ToString()),
                         new Claim("FullName", u.Nombre + " " + u.Apellido),
                         new Claim(ClaimTypes.Role, "Supervisor"),
                     };

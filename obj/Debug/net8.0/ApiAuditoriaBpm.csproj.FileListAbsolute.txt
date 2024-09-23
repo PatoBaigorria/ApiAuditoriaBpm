@@ -47,3 +47,4 @@ E:\ULP\Laboratorio 3\ApiAuditoriaBpm\obj\Debug\net8.0\refint\ApiAuditoriaBpm.dll
 E:\ULP\Laboratorio 3\ApiAuditoriaBpm\obj\Debug\net8.0\ApiAuditoriaBpm.pdb
 E:\ULP\Laboratorio 3\ApiAuditoriaBpm\obj\Debug\net8.0\ApiAuditoriaBpm.genruntimeconfig.cache
 E:\ULP\Laboratorio 3\ApiAuditoriaBpm\obj\Debug\net8.0\ref\ApiAuditoriaBpm.dll
+E:\ULP\Laboratorio 3\ApiAuditoriaBpm\obj\Debug\net8.0\ApiAuditoriaBpm.sourcelink.json
