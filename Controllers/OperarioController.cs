@@ -38,7 +38,7 @@ namespace apiAuditoriaBPM.Controllers
             }
         }
 
-        /*[HttpGet("validar-legajo/{legajo}")]
+        [HttpGet("validar-legajo/{legajo}")]
         public async Task<ActionResult> ValidarLegajo(int legajo)
         {
             try
@@ -55,7 +55,7 @@ namespace apiAuditoriaBPM.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }*/
+        }
 
         [HttpGet]
         public async Task<ActionResult<List<Operario>>> Get()
