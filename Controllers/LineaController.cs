@@ -13,8 +13,35 @@ namespace apiAuditoriaBPM.Controllers
         {
             this.contexto = contexto;
         }
-        [HttpGet]
-        public async Task<ActionResult<List<Linea>>> Get()
+        [HttpGet("byLegajo")]
+        public async Task<ActionResult<List<Linea>>> GetLineasByLegajo([FromQuery] int legajo)
+        {
+            try
+            {
+                // Encontrar el operario por su legajo
+                var operario = await contexto.Operario.Include(o => o.Linea)
+                                .FirstOrDefaultAsync(o => o.Legajo == legajo);
+
+                if (operario == null)
+                {
+                    return NotFound("Operario no encontrado");
+                }
+
+                // Obtener la línea asociada
+                var linea = await contexto.Linea
+                                  .Where(l => l.IdLinea == operario.IdLinea)
+                                  .ToListAsync();
+
+                return Ok(linea);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("todas")]
+        public async Task<ActionResult<List<Linea>>> GetTodasLineas()
         {
             try
             {
@@ -25,7 +52,8 @@ namespace apiAuditoriaBPM.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            
         }
+
     }
+
 }

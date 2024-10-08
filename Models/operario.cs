@@ -21,12 +21,6 @@ namespace apiAuditoriaBPM.Models
         public int Legajo { get; set; }
 
         [Required]
-        public int IdPuesto { get; set; }
-
-        [ForeignKey(nameof(IdPuesto))]
-        public Puesto? Puesto { get; set; }
-
-        [Required]
         public int IdActividad { get; set; }
 
         [ForeignKey(nameof(IdActividad))]
@@ -37,6 +31,17 @@ namespace apiAuditoriaBPM.Models
 
         [ForeignKey(nameof(IdLinea))]
         public Linea? Linea { get; set; }
-        
 
-    }}
+        // Método para obtener el nombre completo
+        public string ObtenerNombreCompleto()
+        {
+            return $"{Nombre} {Apellido}";
+        }
+
+        // Para facilitar la visualización en logs o debug
+        public override string ToString()
+        {
+            return ObtenerNombreCompleto(); // Devuelve el nombre completo
+        }
+    }
+}

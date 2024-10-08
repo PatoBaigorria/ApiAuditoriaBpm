@@ -6,7 +6,7 @@ namespace apiAuditoriaBPM.Models
     public class AuditoriaItemBPM
     {
         [Key]
-        public int IdAuditoriaBPM { get; set; }
+        public int IdAuditoriaItemBPM { get; set; }
 
         [Required] 
         public int IdAuditoria{ get; set; }
