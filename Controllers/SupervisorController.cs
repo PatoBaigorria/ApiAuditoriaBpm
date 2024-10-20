@@ -84,6 +84,7 @@ namespace apiAuditoriaBPM.Controllers
                     var credenciales = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                     var claims = new List<Claim>
                     {
+                        new Claim(ClaimTypes.Name, u.Legajo.ToString()),
                         new Claim("Legajo", u.Legajo.ToString()),
                         new Claim("FullName", u.Nombre + " " + u.Apellido),
                         new Claim(ClaimTypes.Role, "Supervisor"),
