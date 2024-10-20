@@ -15,7 +15,12 @@ namespace apiAuditoriaBPM.Models
         public int IdItemBPM { get; set; }
 
         [Required]
-        public bool Estado { get; set; }
+        public bool? Estado { get; set; }
+
+        public string? Comentario { get; set; }
+
+        [Required]
+        public bool Aplica { get; set; }
 
         [ForeignKey(nameof(IdAuditoria))]
         public Auditoria? Auditoria { get; set; }

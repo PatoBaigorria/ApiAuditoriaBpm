@@ -34,9 +34,7 @@ namespace apiAuditoriaBPM.Models
 
         public DateOnly Fecha { get; set; }
 
-        [Required]
-        [MaxLength(200)]
-        public string? Comentarios { get; set; }
+        public string? Comentario { get; set; }
 
 
     }
