@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ApiAuditoriaBpm")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ed3c16ac6085947006bba54120de26a3bf58003a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+04e05ecaa349043b0bd01f6c9dbdf18093283987")]
 [assembly: System.Reflection.AssemblyProductAttribute("ApiAuditoriaBpm")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ApiAuditoriaBpm")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
