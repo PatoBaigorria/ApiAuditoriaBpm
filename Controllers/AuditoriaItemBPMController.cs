@@ -26,8 +26,7 @@ namespace apiAuditoriaBPM.Controllers
                                           IdAuditoria = item.IdAuditoria,
                                           IdItemBPM = item.IdItemBPM,
                                           Estado = item.Estado,
-                                          Comentario = item.Auditoria.Comentario != null ? item.Auditoria.Comentario : "",
-                                          Aplica = item.Aplica
+                                          Comentario = item.Auditoria.Comentario != null ? item.Auditoria.Comentario : ""
                                       })
                                       .ToListAsync();
 
@@ -46,9 +45,9 @@ namespace apiAuditoriaBPM.Controllers
                 return NotFound("Operario no encontrado.");
             }
 
-            // Obtener los items con estado false
+            // Obtener los items con estado NoOk
             var items = await contexto.AuditoriaItemBPM
-                                      .Where(a => a.Estado == false)
+                                      .Where(a => a.Estado == EstadoEnum.NOOK)
                                       .Include(a => a.Auditoria)
                                       .ThenInclude(a => a.Operario)
                                       .Where(a => a.Auditoria.Operario.Legajo == legajo)
@@ -77,6 +76,33 @@ namespace apiAuditoriaBPM.Controllers
             // Retornar los items encontrados, sus cantidades y todos los comentarios
             return Ok(groupedItems);
         }
+
+        [HttpPost("alta-items")]
+        public async Task<IActionResult> DarDeAltaItem([FromBody] AuditoriaItemBPM auditoriaItem)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+
+                
+            }
+
+            try
+            {
+                await contexto.AuditoriaItemBPM.AddAsync(auditoriaItem);
+                await contexto.SaveChangesAsync();
+                return Ok(new
+                {
+                    message = "Ítem de auditoría creado correctamente",
+                    auditoriaItem
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
 
 
 

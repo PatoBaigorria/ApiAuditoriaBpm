@@ -3,6 +3,8 @@ using System.Security.Claims;
 using apiAuditoriaBPM.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace apiAuditoriaBPM.Controllers
 {
@@ -20,6 +22,7 @@ namespace apiAuditoriaBPM.Controllers
 
         // GET: Cantidad Auditorias realizadas por Supervisor
         [HttpGet("cantidad-auditorias-mes-a-mes")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult<Dictionary<string, object>>> GetAuditoriasMesAMes([FromQuery] int anioInicio, [FromQuery] int anioFin)
         {
             try
@@ -63,17 +66,17 @@ namespace apiAuditoriaBPM.Controllers
                                         a.Fecha.Month == mes)
                             .ToListAsync();
 
-                        // Contar las auditorías en base a los ítems que tengan estado false o true/null
+                        // Contar las auditorías en base a los ítems que tengan estado (1: no ok, 2: ok, 3: n/a)
                         var auditoriasConEstadoNoOk = 0;
                         var auditoriasConEstadoOk = 0;
 
                         foreach (var auditoria in auditoriasMes)
                         {
-                            // Verificar si al menos un ítem tiene estado false (0)
+                            // Verificar si al menos un ítem tiene estado NOOK (2)
                             var tieneEstadoNoOK = await contexto.AuditoriaItemBPM
-                                .AnyAsync(ai => ai.IdAuditoria == auditoria.IdAuditoria && ai.Estado == false);
+                                .AnyAsync(ai => ai.IdAuditoria == auditoria.IdAuditoria && ai.Estado == EstadoEnum.NOOK);
 
-                            // Si no tiene ítems en estado NOOk, consideramos que todos los ítems son OK o null
+                            // Si no tiene ítems en estado NOOk, consideramos que todos los ítems son OK o n/a
                             if (tieneEstadoNoOK)
                             {
                                 auditoriasConEstadoNoOk++;
@@ -136,11 +139,27 @@ namespace apiAuditoriaBPM.Controllers
 
             return Ok(operariosSinAuditoria);
         }
+        public class AltaAuditoriaRequest
+        {
+            public int IdOperario { get; set; }
+            public int IdSupervisor { get; set; }
+            public int IdActividad { get; set; }
+            public int IdLinea { get; set; }
+            public string? Comentario { get; set; }
+            public List<ItemAuditoriaRequest> Items { get; set; } = new();
+        }
+
+        public class ItemAuditoriaRequest
+        {
+            public int IdItemBPM { get; set; }
+            public string Estado { get; set; }  // Enum o string (por ejemplo, "OK", "NO_OK", "N/A")
+            public string? Comentario { get; set; }
+        }
 
 
         // POST: Auditorias/alta
-        [HttpPost("alta")]
-        public async Task<IActionResult> DarDeAlta([FromBody] Auditoria auditoria)
+        [HttpPost("alta-auditoria-completa")]
+        public async Task<IActionResult> DarDeAltaAuditoriaCompleta([FromBody] AltaAuditoriaRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -149,17 +168,41 @@ namespace apiAuditoriaBPM.Controllers
 
             try
             {
-                await contexto.Auditoria.AddAsync(auditoria);
-                await contexto.SaveChangesAsync();
-                return Ok(new
+                var nuevaAuditoria = new Auditoria
                 {
-                    message = "Auditoría creada correctamente", auditoria
-                });
+                    IdSupervisor = request.IdSupervisor,
+                    IdOperario = request.IdOperario,
+                    IdActividad = request.IdActividad,
+                    IdLinea = request.IdLinea,
+                    Fecha = DateOnly.FromDateTime(DateTime.Now),
+                    Comentario = request.Comentario
+                };
+
+                await contexto.Auditoria.AddAsync(nuevaAuditoria);
+                await contexto.SaveChangesAsync();
+
+                foreach (var item in request.Items)
+                {
+                    var nuevoAuditoriaItem = new AuditoriaItemBPM
+                    {
+                        IdAuditoria = nuevaAuditoria.IdAuditoria,
+                        IdItemBPM = item.IdItemBPM,
+                        Estado = Enum.Parse<EstadoEnum>(item.Estado),
+                        Comentario = item.Comentario
+                    };
+                    await contexto.AuditoriaItemBPM.AddAsync(nuevoAuditoriaItem);
+                }
+
+                await contexto.SaveChangesAsync();
+                return CreatedAtAction(nameof(DarDeAltaAuditoriaCompleta), new { id = nuevaAuditoria.IdAuditoria }, new { message = "Auditoría completa creada correctamente", auditoria = nuevaAuditoria });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+                var errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return StatusCode(500, $"Error interno del servidor: {errorMessage}");
             }
+
+
         }
     }
 }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace apiAuditoriaBPM.Models
 {
+    public enum EstadoEnum { OK = 1, NOOK = 2, NA = 3 }
     public class AuditoriaItemBPM
     {
         [Key]
@@ -15,12 +16,9 @@ namespace apiAuditoriaBPM.Models
         public int IdItemBPM { get; set; }
 
         [Required]
-        public bool? Estado { get; set; }
+        public EstadoEnum Estado { get; set; }
 
         public string? Comentario { get; set; }
-
-        [Required]
-        public bool Aplica { get; set; }
 
         [ForeignKey(nameof(IdAuditoria))]
         public Auditoria? Auditoria { get; set; }
