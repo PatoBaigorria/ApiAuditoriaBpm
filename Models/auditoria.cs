@@ -35,6 +35,6 @@ namespace apiAuditoriaBPM.Models
         public DateOnly Fecha { get; set; }
 
         public string? Comentario { get; set; }
-
+        
     }
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace apiAuditoriaBPM.Models
 {
@@ -21,6 +22,7 @@ namespace apiAuditoriaBPM.Models
         public string? Comentario { get; set; }
 
         [ForeignKey(nameof(IdAuditoria))]
+        [JsonIgnore] 
         public Auditoria? Auditoria { get; set; }
 
         [ForeignKey(nameof(IdItemBPM))]

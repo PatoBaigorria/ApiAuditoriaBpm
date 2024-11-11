@@ -129,7 +129,7 @@ namespace apiAuditoriaBPM.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
-        /*[HttpPost("enviar-notificacion-auditoria")]
+        [HttpPost("enviar-notificacion-auditoria")]
         public async Task<IActionResult> EnviarNotificacionAuditoria([FromForm] int idAuditoria)
         {
             try
@@ -137,7 +137,6 @@ namespace apiAuditoriaBPM.Controllers
                 var auditoria = await contexto.Auditoria
                     .Include(a => a.Operario)
                     .Include(a => a.Supervisor)
-                    .Include(a => a.AuditoriaItems)
                     .FirstOrDefaultAsync(a => a.IdAuditoria == idAuditoria);
 
                 // Verificar que la auditoría y los datos relevantes no son null
@@ -154,6 +153,8 @@ namespace apiAuditoriaBPM.Controllers
                     Console.WriteLine("Operario no encontrado en la auditoría.");
                     return BadRequest("El operario no está asociado con esta auditoría.");
                 }
+
+                Console.WriteLine("Operario: " + operario?.Email);
 
                 if (string.IsNullOrEmpty(operario.Nombre) || string.IsNullOrEmpty(operario.Email))
                 {
@@ -173,7 +174,7 @@ namespace apiAuditoriaBPM.Controllers
                     return BadRequest("La fecha de la auditoría es inválida.");
                 }
 
-                var auditoriaItems = auditoria.AuditoriaItems;
+                var auditoriaItems = await contexto.AuditoriaItemBPM.Include(i => i.ItemBPM).Where(ai => ai.IdAuditoria == idAuditoria).ToListAsync();
                 if (auditoriaItems == null || !auditoriaItems.Any())
                 {
                     return BadRequest("No hay ítems asociados a esta auditoría.");
@@ -187,14 +188,14 @@ namespace apiAuditoriaBPM.Controllers
                         <li><strong>ID Auditoría:</strong> {auditoria.IdAuditoria}</li>
                         <li><strong>Fecha:</strong> {auditoria.Fecha.ToString("dd/MM/yyyy")}</li>
                         <li><strong>Supervisor:</strong> {supervisor.Nombre}</li>
-                        <li><strong>Total de Ítems:</strong> {auditoria.AuditoriaItems.Count}</li>
+                        <li><strong>Total de Ítems:</strong> {auditoriaItems.Count}</li>
                     </ul>
                     <h2>Resumen de Ítems:</h2>
                     <table>
                         <tr><th>Ítem</th><th>Estado</th><th>Comentario</th></tr>";
 
                 // Agregar los ítems de auditoría al cuerpo del correo
-                foreach (var item in auditoria.AuditoriaItems)
+                foreach (var item in auditoriaItems)
                 {
                     cuerpoCorreo += $@"
                         <tr>
@@ -218,7 +219,7 @@ namespace apiAuditoriaBPM.Controllers
                 // Enviar el correo
                 using var client = new SmtpClient();
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true;
-                await client.ConnectAsync("smtp.tuservidor.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                await client.ConnectAsync("sandbox.smtp.mailtrap.io", 587, MailKit.Security.SecureSocketOptions.StartTls);
                 await client.AuthenticateAsync(config["SMTPUser"], config["SMTPPass"]);
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
@@ -231,7 +232,7 @@ namespace apiAuditoriaBPM.Controllers
                 Console.WriteLine($"Detalles: {ex.StackTrace}");
                 return StatusCode(500, $"Error al enviar el correo: {ex.Message}. Detalles: {ex.StackTrace}");
             }
-        }*/
+        }
 
 
         // GET: Operario Sin Auditoría
