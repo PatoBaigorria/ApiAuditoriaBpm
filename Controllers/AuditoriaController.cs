@@ -5,6 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using MimeKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace apiAuditoriaBPM.Controllers
 {
@@ -14,9 +19,12 @@ namespace apiAuditoriaBPM.Controllers
     {
         private readonly DataContext contexto;
 
-        public AuditoriasController(DataContext contexto)
+        private readonly IConfiguration config;
+
+        public AuditoriasController(DataContext contexto, IConfiguration config)
         {
             this.contexto = contexto;
+            this.config = config;
         }
 
 
@@ -121,6 +129,110 @@ namespace apiAuditoriaBPM.Controllers
                 return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
+        /*[HttpPost("enviar-notificacion-auditoria")]
+        public async Task<IActionResult> EnviarNotificacionAuditoria([FromForm] int idAuditoria)
+        {
+            try
+            {
+                var auditoria = await contexto.Auditoria
+                    .Include(a => a.Operario)
+                    .Include(a => a.Supervisor)
+                    .Include(a => a.AuditoriaItems)
+                    .FirstOrDefaultAsync(a => a.IdAuditoria == idAuditoria);
+
+                // Verificar que la auditoría y los datos relevantes no son null
+
+                if (auditoria == null)
+                {
+                    return NotFound("No se encontró la auditoría especificada.");
+                }
+
+                var operario = auditoria.Operario;
+                Console.WriteLine("Operario: " + operario?.Nombre);
+                if (operario == null)
+                {
+                    Console.WriteLine("Operario no encontrado en la auditoría.");
+                    return BadRequest("El operario no está asociado con esta auditoría.");
+                }
+
+                if (string.IsNullOrEmpty(operario.Nombre) || string.IsNullOrEmpty(operario.Email))
+                {
+                    Console.WriteLine("El operario o el correo electrónico son null.");
+                    return BadRequest("El operario no tiene un correo electrónico o nombre registrado.");
+                }
+
+                var supervisor = auditoria.Supervisor;
+                if (supervisor == null || string.IsNullOrEmpty(supervisor.Nombre))
+                {
+                    return BadRequest("El supervisor no tiene un nombre registrado.");
+                }
+
+                // Verificar que la fecha de la auditoría no sea null
+                if (auditoria.Fecha == null)
+                {
+                    return BadRequest("La fecha de la auditoría es inválida.");
+                }
+
+                var auditoriaItems = auditoria.AuditoriaItems;
+                if (auditoriaItems == null || !auditoriaItems.Any())
+                {
+                    return BadRequest("No hay ítems asociados a esta auditoría.");
+                }
+
+                // Construcción del cuerpo del correo con validación
+                var cuerpoCorreo = $@"
+                    <h1>Hola {operario.Nombre},</h1>
+                    <p>Se ha completado una auditoría con los siguientes detalles:</p>
+                    <ul>
+                        <li><strong>ID Auditoría:</strong> {auditoria.IdAuditoria}</li>
+                        <li><strong>Fecha:</strong> {auditoria.Fecha.ToString("dd/MM/yyyy")}</li>
+                        <li><strong>Supervisor:</strong> {supervisor.Nombre}</li>
+                        <li><strong>Total de Ítems:</strong> {auditoria.AuditoriaItems.Count}</li>
+                    </ul>
+                    <h2>Resumen de Ítems:</h2>
+                    <table>
+                        <tr><th>Ítem</th><th>Estado</th><th>Comentario</th></tr>";
+
+                // Agregar los ítems de auditoría al cuerpo del correo
+                foreach (var item in auditoria.AuditoriaItems)
+                {
+                    cuerpoCorreo += $@"
+                        <tr>
+                            <td>{item.ItemBPM.Descripcion}</td>
+                            <td>{item.Estado}</td>
+                            <td>{item.Comentario}</td>
+                        </tr>";
+                }
+
+                cuerpoCorreo += "</table>";
+                Console.WriteLine("Cuerpo del correo generado:");
+                Console.WriteLine(cuerpoCorreo);
+
+                // Crear el mensaje del correo
+                var message = new MimeMessage();
+                message.To.Add(new MailboxAddress(operario.Nombre, operario.Email));
+                message.From.Add(new MailboxAddress("Sistema de Auditorías", config["SMTPUser"]));
+                message.Subject = $"Notificación de Auditoría #{auditoria.IdAuditoria}";
+                message.Body = new TextPart("html") { Text = cuerpoCorreo };
+
+                // Enviar el correo
+                using var client = new SmtpClient();
+                client.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                await client.ConnectAsync("smtp.tuservidor.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                await client.AuthenticateAsync(config["SMTPUser"], config["SMTPPass"]);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+
+                return Ok("Se ha enviado la notificación de la auditoría correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al enviar el correo: {ex.Message}");
+                Console.WriteLine($"Detalles: {ex.StackTrace}");
+                return StatusCode(500, $"Error al enviar el correo: {ex.Message}. Detalles: {ex.StackTrace}");
+            }
+        }*/
+
 
         // GET: Operario Sin Auditoría
         [HttpGet("auditorias-operario")]

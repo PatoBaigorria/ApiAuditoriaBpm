@@ -36,6 +36,5 @@ namespace apiAuditoriaBPM.Models
 
         public string? Comentario { get; set; }
 
-
     }
 }

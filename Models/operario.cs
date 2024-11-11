@@ -32,6 +32,8 @@ namespace apiAuditoriaBPM.Models
         [ForeignKey(nameof(IdLinea))]
         public Linea? Linea { get; set; }
 
+        public string Email { get; set; } = "";
+
         // Método para obtener el nombre completo
         public string ObtenerNombreCompleto()
         {
