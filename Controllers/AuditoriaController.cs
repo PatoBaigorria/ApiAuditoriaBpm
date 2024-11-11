@@ -307,6 +307,7 @@ namespace apiAuditoriaBPM.Controllers
                 }
 
                 await contexto.SaveChangesAsync();
+                EnviarNotificacionAuditoria(nuevaAuditoria.IdAuditoria);
                 return CreatedAtAction(nameof(DarDeAltaAuditoriaCompleta), new { id = nuevaAuditoria.IdAuditoria }, new { message = "Auditoría completa creada correctamente", auditoria = nuevaAuditoria });
             }
             catch (Exception ex)
