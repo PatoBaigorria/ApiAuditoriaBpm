@@ -182,17 +182,22 @@ namespace apiAuditoriaBPM.Controllers
 
                 // Construcción del cuerpo del correo con validación
                 var cuerpoCorreo = $@"
-                    <h1>Hola {operario.Nombre},</h1>
+                    <h1>Hola {operario.ObtenerNombreCompleto()},</h1>
                     <p>Se ha completado una auditoría con los siguientes detalles:</p>
                     <ul>
                         <li><strong>ID Auditoría:</strong> {auditoria.IdAuditoria}</li>
                         <li><strong>Fecha:</strong> {auditoria.Fecha.ToString("dd/MM/yyyy")}</li>
-                        <li><strong>Supervisor:</strong> {supervisor.Nombre}</li>
-                        <li><strong>Total de Ítems:</strong> {auditoriaItems.Count}</li>
+                        <li><strong>Supervisor:</strong> {supervisor.Nombre + " " + supervisor.Apellido}</li>
+                        <li><strong>Total de Ítems Auditados:</strong> {auditoriaItems.Count}</li>
+                        <li><strong>Comentario:</strong> {auditoria.Comentario}</li>
                     </ul>
-                    <h2>Resumen de Ítems:</h2>
-                    <table>
-                        <tr><th>Ítem</th><th>Estado</th><th>Comentario</th></tr>";
+                    <h2>Resumen de Ítems Auditados:</h2>
+                    <table border='1' cellpadding='5' cellspacing='0'>
+                        <tr>
+                            <th>Ítem</th>
+                            <th>Estado</th>
+                            <th>Comentario</th>
+                        </tr>";
 
                 // Agregar los ítems de auditoría al cuerpo del correo
                 foreach (var item in auditoriaItems)
@@ -211,7 +216,7 @@ namespace apiAuditoriaBPM.Controllers
 
                 // Crear el mensaje del correo
                 var message = new MimeMessage();
-                message.To.Add(new MailboxAddress(operario.Nombre, operario.Email));
+                message.To.Add(new MailboxAddress(operario.ObtenerNombreCompleto(), operario.Email));
                 message.From.Add(new MailboxAddress("Sistema de Auditorías", config["SMTPUser"]));
                 message.Subject = $"Notificación de Auditoría #{auditoria.IdAuditoria}";
                 message.Body = new TextPart("html") { Text = cuerpoCorreo };
